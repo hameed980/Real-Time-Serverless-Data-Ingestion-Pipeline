@@ -1,6 +1,6 @@
 #  Real-Time Serverless Data Ingestion Pipeline
 
-**DataPulse** is a real-time, serverless data pipeline built using AWS services. It automates the ingestion and processing of financial, cryptocurrency, and foreign exchange data from three different sources. The system fetches and stores raw data every minute using AWS Lambda, EventBridge, and S3, with optional transformation steps for certain datasets.
+It is a real-time, serverless data pipeline built using AWS services. It automates the ingestion and processing of financial, cryptocurrency, and foreign exchange data from three different sources. The system fetches and stores raw data every minute using AWS Lambda, EventBridge, and S3, with optional transformation steps for certain datasets.
 
 ---
 
