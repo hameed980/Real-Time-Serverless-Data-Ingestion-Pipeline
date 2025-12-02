@@ -36,6 +36,10 @@ The final result is a **fully automated, scalable, production-style pipeline** s
 
  **2\. Architecture Diagram**
 ===============================
+## 🧱 Architecture Diagram
+
+![Architecture Diagram](https://raw.githubusercontent.com/hameed980/Real-Time-Serverless-Data-Ingestion-Pipeline/main/architecture.png)
+
 
 `[Yahoo Finance]   [CoinMarketCap]   [OpenExchangeRates]
        |                 |                 |
