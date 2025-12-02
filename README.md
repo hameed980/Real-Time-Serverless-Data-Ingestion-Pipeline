@@ -1,82 +1,90 @@
-Real-Time Serverless Data Ingestion Pipeline
-============================================
+**Real-Time Serverless Data Ingestion Pipeline**
+================================================
 
-[](https://github.com/hameed980/Real-Time-Serverless-Data-Ingestion-Pipeline#real-time-serverless-data-ingestion-pipeline)
-
-**An end-to-end automated data engineering project using AWS, Python, S3, Lambda, EventBridge, SNS, SQS, Snowflake, SQL Server, and Power BI.**
+An end-to-end automated data engineering project using **AWS, Python, S3, Lambda, EventBridge, SNS, SQS, Snowflake, SQL Server, and Power BI**.
 
 * * * * *
 
-📌 **1\. Project Overview**
----------------------------
+ **1\. Project Overview**
+===========================
 
-This project solves a common real-world problem:
+Modern businesses need **live, accurate, and automatically refreshed market data** for decision-making.\
+The problem:\
+**How can we continuously collect real-time stock, cryptocurrency, and currency exchange data from multiple APIs, process it, store it properly, and make it ready for analytics---without manual work?**
 
-> **How can we automatically collect live stock, cryptocurrency, and foreign exchange data every minute from multiple sources, process it in real-time, store it properly, and make it ready for analytics --- without manual effort?**
+To solve this, I built a **serverless real-time data ingestion and analytics pipeline** that:
 
-To address this, I built a **fully automated, serverless real-time data pipeline** that ingests → processes → stores → and visualizes market data from three different external sources:
+-   Ingests live data every minute
 
--   **Yahoo Finance** (S&P 500 OHLCV data)
+-   Processes and routes it intelligently
 
--   **CoinMarketCap** (Top 10 cryptocurrencies)
+-   Stores it in Snowflake, SQL Server, and S3
 
--   **Open Exchange Rates** (Live currency rates)
+-   Feeds Power BI dashboards for insights
 
-The outcome is a production-style data system suitable for analytics, reporting, and insights.
+This system handles three external sources:
+
+-   **Yahoo Finance** -- S&P 500 OHLCV
+
+-   **CoinMarketCap** -- Top 10 cryptocurrencies
+
+-   **OpenExchangeRates** -- Live currency FX rates
+
+The final result is a **fully automated, scalable, production-style pipeline** suitable for real analytics, reporting, and monitoring.
 
 * * * * *
 
-🧱 **2\. Architecture Diagram**
+ **2\. Architecture Diagram**
 ===============================
 
- `[Yahoo Finance]       [CoinMarketCap]        [OpenExchangeRates]
-          |                       |                        |
-   [AWS Lambda - Ingestion]  [AWS Lambda]           [AWS Lambda]
-          |                       |                        |
-     triggered every minute using Amazon EventBridge (CRON rule)
-          |                       |                        |
-                  ====>  S3 RAW DATA LAKE  <====
-                            (with metadata)
+`[Yahoo Finance]   [CoinMarketCap]   [OpenExchangeRates]
+       |                 |                 |
+       |   AWS Lambda Ingestion Functions  |
+       |         (Trigger: Every Minute)   |
+       |                 |                 |
+                   S3 RAW DATA LAKE
+                      (JSON Files)
 
-                     S3 Event → SNS Topic
-                   SNS → SQS FIFO Queues
-              (yfinance.fifo | cmc.fifo | fxrates.fifo)
+            S3 Event → SNS Notification
+            SNS → SQS Standard Queues
+       (yfinance-queue | cmc-queue | fxrates-queue)
 
-                     SQS FIFO → Lambda Processing
-            -------------------------------------------------
-            |                   |                          |
-      Transform + Load     Transform + Store         Transform + Load
-          to Snowflake        to S3 Processed             to SQL Server
-            -------------------------------------------------
+               SQS → Lambda Processing
 
-                Power BI Dashboards (SQL Server + Snowflake)`
+       -----------------------------------------------
+       |                   |                         |
+Transform + Load      Transform + Store      Transform + Load
+   to Snowflake        to S3 Processed          to SQL Server
+       -----------------------------------------------
+
+        Power BI Dashboards (SQL Server + Snowflake)`
 
 * * * * *
 
-🗂️ **3\. Data Sources**
+ **3\. Data Sources**
 ========================
 
-### **1\. Yahoo Finance (yfinance library)**
+### **1\. Yahoo Finance**
 
--   Collects **minute-level OHLCV** for all **S&P 500 symbols**
+-   Uses `yfinance` Python library
 
--   Ideal for stock trend analysis
+-   Fetches **minute-level OHLCV** for all S&P 500 symbols
 
-### **2\. CoinMarketCap (Web Scraping)**
+### **2\. CoinMarketCap**
 
--   Retrieves Top 10 cryptocurrencies by market cap
+-   Web scraped with **BeautifulSoup + requests**
 
--   Data extracted with **BeautifulSoup + requests**
+-   Extracts Top 10 cryptocurrencies
 
-### **3\. Open Exchange Rates (REST API)**
+### **3\. Open Exchange Rates**
 
--   Live USD-based currency FX rates
+-   REST API call using `requests`
 
--   Requires App ID from OpenExchangeRates
+-   Provides **live USD-based FX rates**
 
 * * * * *
 
-⚙️ **4\. Tech Stack**
+**4\. Tech Stack**
 =====================
 
 ### **Languages & Libraries**
@@ -97,7 +105,7 @@ The outcome is a production-style data system suitable for analytics, reporting,
 
 -   SNS
 
--   SQS FIFO
+-   SQS (Standard)
 
 -   EventBridge
 
@@ -111,164 +119,179 @@ The outcome is a production-style data system suitable for analytics, reporting,
 
 * * * * *
 
-🚀 **5\. Pipeline Breakdown**
+**5\. Pipeline Breakdown**
 =============================
+
+* * * * *
 
 **STEP 1 --- Data Ingestion (AWS Lambda + EventBridge)**
 ------------------------------------------------------
 
-Each data source has its own Lambda:
+Each source has a dedicated Lambda function:
 
-| Lambda Function | Source | Trigger | Output |
+| Function Name | Source | Trigger | Output |
 | --- | --- | --- | --- |
-| lambda_yahoofinance | Yahoo Finance | Every minute | OHLCV JSON → S3/raw/yahoofinance |
-| lambda_coinmarketcap | CoinMarketCap | Every minute | Crypto JSON → S3/raw/coinmarketcap |
-| lambda_openexchangerates | OXR API | Every minute | FX JSON → S3/raw/openexchangerates |
+| lambda_yahoofinance | Yahoo Finance | Every minute | S3/raw/yahoofinance |
+| lambda_coinmarketcap | CoinMarketCap | Every minute | S3/raw/coinmarketcap |
+| lambda_openexchangerates | OXR API | Every minute | S3/raw/openexchangerates |
 
-All raw files include metadata:
+Each file includes metadata:
 
 -   timestamp
 
--   symbol (if applicable)
+-   source
 
--   source name
+-   status
 
--   API response status
+-   symbol (if available)
 
 * * * * *
 
 **STEP 2 --- S3 Event → SNS → SQS Routing**
 -----------------------------------------
 
-1.  S3 triggers SNS whenever a new file arrives
+Whenever new data lands in S3:
 
-2.  SNS uses metadata filtering to route events to one of the 3 FIFO queues
+1.  **S3 triggers SNS**
 
-3.  Ensures **ordered**, **exactly-once** delivery
+2.  **SNS routes message to 3 SQS queues (by metadata)**
 
-Queues:
+3.  Processing Lambdas read SQS messages
 
--   yahoo-finance-queue.fifo
+### **Why Standard SQS Instead of FIFO?**
 
--   coinmarketcap-queue.fifo
+SNS does **not** allow direct publishing to FIFO queues without additional configurations (MessageGroupId, deduplication, FIFO SNS topic).\
+To keep the pipeline simple and fully compatible:
 
--   openexchangerates-queue.fifo
+**I used Standard SQS queues for all three pipelines.**
+
+This ensures reliable, fast delivery without restrictions.
+
+Queues used:
+
+-   **yfinance-queue**
+
+-   **cmc-queue**
+
+-   **fxrates-queue**
 
 * * * * *
 
-**STEP 3 --- Processing & Loading (Lambda)**
-------------------------------------------
+**STEP 3 --- Data Processing (Lambda)**
+-------------------------------------
 
 ### **Yahoo Finance → Snowflake**
 
--   Reads SQS messages
+-   Reads OHLCV messages from SQS
 
--   Parses OHLCV
+-   Cleans + prepares data
 
 -   Loads into Snowflake table
 
--   Enables BI-ready stock analysis
-
-* * * * *
+-   Supports BI-ready stock analysis
 
 ### **CoinMarketCap → Processed S3 Zone**
 
--   Cleans data
+-   Cleans crypto data
 
--   Stores transformed JSON/Parquet in:
+-   Stores in Parquet/JSON
 
-`s3://data-hackathon-smit-yourname/processed/coinmarketcap/`
+-   Output folder:
+
+    `s3://data-pipeline/processed/coinmarketcap/`
+
+### **OpenExchangeRates → SQL Server**
+
+-   Extracts FX metrics
+
+-   Loads data into SQL Server
+
+-   Used directly for Power BI dashboards
 
 * * * * *
 
-### **Open Exchange Rates → SQL Server**
-
--   Extracts currency FX details
-
--   Loads into SQL Server table
-
--   Used for Power BI dashboards
-
-* * * * *
-
-📊 **6\. Business Intelligence Layer (Power BI)**
+ **6\. Business Intelligence Layer (Power BI)**
 =================================================
 
-Connected Power BI to:
+Connected to both:
 
 -   **SQL Server**
 
 -   **Snowflake**
 
-Created dashboards showing:
+Dashboards include:
 
--   S&P 500 stock movements
+-   Stock price movements
 
--   Crypto market trends
+-   Crypto market changes
 
--   FX rate fluctuations
+-   FX rate patterns
 
--   Trend lines and indicators
+-   Real-time trends
 
--   Minute-level updating visuals
+-   Technical indicators
+
+Updates every minute.
 
 * * * * *
 
-🎯 **7\. Final Outcomes**
+ **7\. Final Outcomes**
 =========================
 
--   **End-to-end automated ETL/ELT system**
+-   Fully automated real-time ETL/ELT pipeline
 
--   **Real-time pipeline updating every minute**
+-   No manual intervention required
 
--   **Scalable, serverless cloud architecture**
+-   Scalable AWS serverless architecture
 
--   **Clean data ready for BI and analytics**
+-   Clean storage zones: raw → processed → analytics
 
--   **Professional-level data engineering workflow**
+-   Ready for dashboards and insights
 
-This project simulates how data teams ingest, transform, and visualize data at scale.
+-   Demonstrates end-to-end production-style data engineering
 
 * * * * *
 
-🧪 **8\. Skills Demonstrated**
+**8\. Skills Demonstrated**
 ==============================
 
 ### **Data Engineering**
 
--   Serverless ETL pipelines
+-   Real-time ingestion
 
--   Real-time processing
+-   Serverless ETL design
 
--   S3 data lake design
+-   S3 data lake layout
 
--   Metadata-driven routing
+-   Event-driven architecture
 
-### **Cloud**
+### **AWS**
 
 -   Lambda
 
 -   EventBridge
 
--   SNS / SQS FIFO
+-   SNS + SQS
 
 -   S3
 
 ### **Programming**
 
--   Python
+-   Python automation
 
--   API consumption
+-   API calling
 
 -   Web scraping
 
--   Data transformation
+-   Data transformations
 
 ### **Analytics**
 
--   Snowflake & SQL Server modeling
+-   Snowflake modeling
 
--   Power BI dashboards
+-   SQL Server transformations
+
+-   Power BI visualizations
 
 * * * * *
 
@@ -276,5 +299,4 @@ This project simulates how data teams ingest, transform, and visualize data at s
 =============
 
 **Abdul Hameed**\
-Cloud Data Engineer\
----
+Cloud Data Engineer
