@@ -5,7 +5,7 @@ A fully automated **real-time market data ingestion pipeline** built using **AWS
 
 * * * * *
 
- 1. Problem --- Why This Pipeline Matters
+ ## 1. Problem --- Why This Pipeline Matters
 -----------------------------------------
 
 Modern financial, fintech, and analytics teams need **fresh, reliable, real-time market data**---updated every minute---to power decisions such as pricing, risk analysis, trading signals, and economic monitoring.
@@ -35,7 +35,7 @@ This system solves the universal problem:\
 
 * * * * *
 
-2. Architecture
+2##. Architecture
 -------------------
 
 ![Architecture Diagram](https://raw.githubusercontent.com/hameed980/Real-Time-Serverless-Data-Ingestion-Pipeline/main/architecture.png)
@@ -60,7 +60,7 @@ This system solves the universal problem:\
 
 * * * * *
 
-3. Data Sources
+3##. Data Sources
 ------------------
 
 ### **1\. Yahoo Finance (yfinance)**
@@ -85,7 +85,7 @@ This system solves the universal problem:\
 
 * * * * *
 
-4. Tech Stack
+4.## Tech Stack
 ----------------
 
 ### **Programming**
@@ -120,7 +120,7 @@ This system solves the universal problem:\
 
 * * * * *
 
-5. Pipeline Breakdown
+5.## Pipeline Breakdown
 ------------------------
 
 * * * * *
@@ -193,7 +193,7 @@ Queues:
 
 * * * * *
 
-6. Final Outcomes
+6.## Final Outcomes
 --------------------
 
 -   **Real-time ingestion from 3 production-grade data sources**
