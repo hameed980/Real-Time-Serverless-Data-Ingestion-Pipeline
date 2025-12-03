@@ -13,7 +13,7 @@ def lambda_handler(event=None, context=None):
     logger.info("Open Exchange Rates Lambda triggered.")
 
     # Fetch from Open Exchange Rates JSON API
-    API_KEY = "f2944e17e65f449cac4c97f3e5c4932e"  #  Add your key here
+    API_KEY = ""  #  Add your key here
     url = f"https://openexchangerates.org/api/latest.json?app_id={API_KEY}"
 
     logger.info("Requesting data from Open Exchange Rates...")
